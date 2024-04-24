@@ -9,7 +9,7 @@ import math
 ## The Loss_function_prior take as input all the points, Y-matrix, dimension k and returns the MLL plus a prior
 ## For all possible edges (every row in Y) it takes the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
 ## Log of sigmoid_value is added to the constant: result, in every loop through the rows of Y
-## Finally it add the prior, as the sum of alle the points multiplied with a constant
+## Finally it add the prior, as the sum of alle the points plus a constant that depends on the dimension
 def Loss_function_prior(point,Y,k):
     alpha = 5 # Change alpha here
     result = 0
@@ -21,7 +21,7 @@ def Loss_function_prior(point,Y,k):
         distance = np.linalg.norm(point_a - point_b) ** 2 
         sigmoid_value = 1 / (1 + np.exp(-connection * (alpha - distance))) 
         result += np.log(sigmoid_value)
-    prior = -1/2 * np.sum(np.square(list(point.values()))) * np.log(1/(2*math.pi)**(k/2))
+    prior = np.log(1/(2*math.pi)**(k/2)) - 1/2 * np.sum(np.square(list(point.values()))**2)
     result += prior
 
     return result
@@ -33,8 +33,8 @@ def Loss_function_prior(point,Y,k):
 ## Firstly it calculates the numerator, where point_index_diff is the point number's index minus the other vertex point number's index
 ## The numerator is mulitplied with the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
 ## The fraction for the m row in Y is added to the constant gradient
-## After the loop it add the gradient as minus the point number's index value multiplied with a constant
-def Gradient_function_prior(point_number,index,Y,point,k):
+## After the loop it add the gradient as minus the point number's index value
+def Gradient_function_prior(point_number,index,Y,point):
     alpha = 5 # Change alpha here
     gradient = 0 
     for m in range(len(Y)):
@@ -46,7 +46,7 @@ def Gradient_function_prior(point_number,index,Y,point,k):
             denominator = 1 + np.exp(-connection * (alpha - distance))
             gradient += numerator / denominator
     
-    gradient -=  np.abs(point[point_number][index])*np.log(1/(2*math.pi)**(k/2))
+    gradient -=  point[point_number][index]
     return gradient 
 
 
@@ -97,4 +97,4 @@ def Gradient_function(point_number,index,Y,point):
 ########################################################### Learning rate ###########################################################
 # The first step is 0.1, and slowly decrease to near 0
 def LR(x):
-    return np.exp(-x/100)*0.1
+    return np.exp(-x/100)*0.1+0.0001
