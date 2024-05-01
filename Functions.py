@@ -23,11 +23,10 @@ def Loss_function_prior(point,Y,k,dis,alpha):
             distance = np.linalg.norm(point_a - point_b) ** 2 
         sigmoid_value = 1 / (1 + np.exp(-connection * (alpha - distance))) 
         result += np.log(sigmoid_value)
-    prior = np.log(1/(2*math.pi)**(k/2)) - 1/2 * np.sum(np.square(list(point.values()))**2)
+    prior = np.log(1/(2*math.pi)**(k/2)) - 1/2 * np.sum(np.square(list(point.values())))
     result += prior
 
     return result
-
 
 def Loss_function_prior_fast(point,Y,k,alpha):
     Y = np.array(Y)
@@ -43,9 +42,8 @@ def Loss_function_prior_fast(point,Y,k,alpha):
     distances = np.sum((points_a_np - points_b_np) ** 2, axis=1)
 
     sigmoid_value = 1 / (1 + np.exp(-connections * (alpha - distances)))
-    prior = np.log(1/(2*math.pi)**(k/2)) - 1/2 * np.sum(np.square(list(point.values()))**2)
+    prior = np.log(1/(2*math.pi)**(k/2)) - 1/2 * np.sum(np.square(list(point.values())))
     return np.sum(np.log(sigmoid_value)) + prior
-
 
 
 
@@ -72,8 +70,7 @@ def Gradient_function_prior(point_number,index,Y,point,dis,alpha):
             denominator = 1 + np.exp(-connection * (alpha - distance))
             gradient += numerator / denominator
     
-    gradient -=  point[point_number][index]
-    return gradient 
+    return gradient - point[point_number][index]
 
     
 def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
@@ -102,7 +99,7 @@ def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
     numerators = -2 * connections[:, np.newaxis] * point_index_diff * np.exp(-connections * (alpha - distances))[:, np.newaxis]
     denominators = 1 + np.exp(-connections * (alpha - distances)) 
 
-    return (np.sum(numerators/denominators[:, np.newaxis], axis=0))-point[point_number]
+    return (np.sum(numerators/denominators[:, np.newaxis], axis=0)) - point[point_number]
 
 
 ########################################################### Without Prior ###########################################################
