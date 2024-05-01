@@ -35,8 +35,8 @@ def Loss_function_prior_fast(point,Y,k,alpha):
     indices_a = Y[:, 1]
     indices_b = Y[:, 2]
 
-    points_a = [point[index] for index in indices_a]
-    points_b = [point[index] for index in indices_b]
+    points_a = [point[i] for i in indices_a]
+    points_b = [point[i] for i in indices_b]
     points_a_np = np.array(points_a)
     points_b_np = np.array(points_b)
 
@@ -75,8 +75,8 @@ def Gradient_function_prior(point_number,index,Y,point,dis,alpha):
     gradient -=  point[point_number][index]
     return gradient 
 
-
-def Gradient_function_prior_fast(point_number,index,Y,point,alpha):
+    
+def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
     Y = np.array(Y)
     mask_a = (Y[:, 1] == point_number)
     mask_b = (Y[:, 2] == point_number)
@@ -86,20 +86,23 @@ def Gradient_function_prior_fast(point_number,index,Y,point,alpha):
     indices_a = Y_edges[:, 1]
     indices_b = Y_edges[:, 2]
 
-    points_a = [point[index] for index in indices_a]
-    points_b = [point[index] for index in indices_b]
+    points_a = [point[i] for i in indices_a]
+    points_b = [point[i] for i in indices_b]
     points_a_np = np.array(points_a)
     points_b_np = np.array(points_b)
 
     distances = np.sum((points_a_np - points_b_np) ** 2, axis=1)
 
     mask = mask_a + mask_b
-    point_index_diff = (points_a_np[:,index] - points_b_np[:,index]) * mask_a[mask] + (points_b_np[:,index] - points_a_np[:,index]) * mask_b[mask]
 
-    numerators = -2 * connections * point_index_diff * np.exp(-connections * (alpha - distances)) 
+    reshaped_mask_a = mask_a[mask][:, np.newaxis]
+    reshaped_mask_b = mask_b[mask][:, np.newaxis]
+    point_index_diff = (points_a_np[:,0:dim] - points_b_np[:,0:dim]) * reshaped_mask_a + (points_b_np[:,0:dim] - points_a_np[:,0:dim]) * reshaped_mask_b
+
+    numerators = -2 * connections[:, np.newaxis] * point_index_diff * np.exp(-connections * (alpha - distances))[:, np.newaxis]
     denominators = 1 + np.exp(-connections * (alpha - distances)) 
 
-    return np.sum(numerators / denominators) - point[point_number][index]
+    return (np.sum(numerators/denominators[:, np.newaxis], axis=0))-point[point_number]
 
 
 ########################################################### Without Prior ###########################################################
@@ -130,8 +133,8 @@ def Loss_function_fast(point,Y,alpha):
     indices_a = Y[:, 1]
     indices_b = Y[:, 2]
 
-    points_a = [point[index] for index in indices_a]
-    points_b = [point[index] for index in indices_b]
+    points_a = [point[i] for i in indices_a]
+    points_b = [point[i] for i in indices_b]
     points_a_np = np.array(points_a)
     points_b_np = np.array(points_b)
 
@@ -166,7 +169,7 @@ def Gradient_function(point_number,index,Y,point,dis,alpha):
     return gradient 
 
 
-def Gradient_function_fast(point_number,index,Y,point,alpha):
+def Gradient_function_fast(point_number,dim,Y,point,alpha):
     Y = np.array(Y)
     mask_a = (Y[:, 1] == point_number)
     mask_b = (Y[:, 2] == point_number)
@@ -176,20 +179,23 @@ def Gradient_function_fast(point_number,index,Y,point,alpha):
     indices_a = Y_edges[:, 1]
     indices_b = Y_edges[:, 2]
 
-    points_a = [point[index] for index in indices_a]
-    points_b = [point[index] for index in indices_b]
+    points_a = [point[i] for i in indices_a]
+    points_b = [point[i] for i in indices_b]
     points_a_np = np.array(points_a)
     points_b_np = np.array(points_b)
 
     distances = np.sum((points_a_np - points_b_np) ** 2, axis=1)
 
     mask = mask_a + mask_b
-    point_index_diff = (points_a_np[:,index] - points_b_np[:,index]) * mask_a[mask] + (points_b_np[:,index] - points_a_np[:,index]) * mask_b[mask]
 
-    numerators = -2 * connections * point_index_diff * np.exp(-connections * (alpha - distances)) 
+    reshaped_mask_a = mask_a[mask][:, np.newaxis]
+    reshaped_mask_b = mask_b[mask][:, np.newaxis]
+    point_index_diff = (points_a_np[:,0:dim] - points_b_np[:,0:dim]) * reshaped_mask_a + (points_b_np[:,0:dim] - points_a_np[:,0:dim]) * reshaped_mask_b
+
+    numerators = -2 * connections[:, np.newaxis] * point_index_diff * np.exp(-connections * (alpha - distances))[:, np.newaxis]
     denominators = 1 + np.exp(-connections * (alpha - distances)) 
 
-    return np.sum(numerators / denominators)
+    return (np.sum(numerators/denominators[:, np.newaxis], axis=0))
 
 
 
