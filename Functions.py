@@ -195,6 +195,34 @@ def Gradient_function_fast(point_number,dim,Y,point,alpha):
     return (np.sum(numerators/denominators[:, np.newaxis], axis=0))
 
 
+############################################################# Baseline #############################################################
+def Baseline_function(Y,test_number,Y_updated):
+    vertex_a = Y[test_number, 1]
+    vertex_b = Y[test_number, 2]
+    mask_conncted = Y_updated[:,0] == 1
+    Y_connected = Y_updated[mask_conncted]
+
+    prop = np.zeros(len(vertex_a))
+    
+    for k in range(len(vertex_a)):
+        Y_a_1 = Y_connected[:,1] == vertex_a[k]
+        Y_a_2 = Y_connected[:,2] == vertex_a[k]
+        Y_a = Y_a_1 + Y_a_2
+        degree_a = Y_connected[Y_a,1] + Y_connected[Y_a,2] - vertex_a[k]
+
+        Y_b_1 = Y_connected[:,1] == vertex_b[k]
+        Y_b_2 = Y_connected[:,2] == vertex_b[k]
+        Y_b = Y_b_1 + Y_b_2
+        degree_b = Y_connected[Y_b,1] + Y_connected[Y_b,2] - vertex_b[k]
+
+        prop[k] = 2*len(np.intersect1d(degree_a, degree_b))/(len(degree_a) + len(degree_b))
+
+    return prop
+
+
+
+
+
 
 ########################################################### Learning rate ###########################################################
 # The first step is 0.1, and slowly decrease to near 0
