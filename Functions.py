@@ -10,24 +10,6 @@ import math
 ## For all possible edges (every row in Y) it takes the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
 ## Log of sigmoid_value is added to the constant: result, in every loop through the rows of Y
 ## Finally it add the prior, as the sum of alle the points plus a constant that depends on the dimension
-def Loss_function_prior(point,Y,k,dis,alpha):
-    result = 0
-
-    for m in range(len(Y)):
-        connection = Y[m][0] 
-        point_a = point[Y[m][1]]
-        point_b = point[Y[m][2]]
-        if dis == "cosi":
-            distance = np.dot(point_a,point_b)/(np.linalg.norm(point_a)*np.linalg.norm(point_b))
-        if dis == "norm":
-            distance = np.linalg.norm(point_a - point_b) ** 2 
-        sigmoid_value = 1 / (1 + np.exp(-connection * (alpha - distance))) 
-        result += np.log(sigmoid_value)
-    prior = np.log(1/(2*math.pi)**(k/2)) - 1/2 * np.sum(np.square(list(point.values())))
-    result += prior
-
-    return result
-
 def Loss_function_prior_fast(point,Y,k,alpha):
     Y = np.array(Y)
     connections = Y[:, 0]
@@ -53,26 +35,7 @@ def Loss_function_prior_fast(point,Y,k,alpha):
 ## Firstly it calculates the numerator, where point_index_diff is the point number's index minus the other vertex point number's index
 ## The numerator is mulitplied with the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
 ## The fraction for the m row in Y is added to the constant gradient
-## After the loop it add the gradient as minus the point number's index value
-def Gradient_function_prior(point_number,index,Y,point,dis,alpha):
-    gradient = 0 
-    for m in range(len(Y)):
-        if ((Y[m][1] == point_number) or (Y[m][2] == point_number)):
-            connection = Y[m][0]
-            point_a = point[Y[m][1]]
-            point_b = point[Y[m][2]]
-            if dis == "cosi":
-                distance = np.dot(point_a,point_b)/(np.linalg.norm(point_a)*np.linalg.norm(point_b))
-            if dis == "norm":
-                distance = np.linalg.norm(point_a - point_b) ** 2
-            point_index_diff = (point[point_number][index] - point_a[index]) + (point[point_number][index] - point_b[index])
-            numerator = -2 * connection * point_index_diff * np.exp(-connection * (alpha - distance))
-            denominator = 1 + np.exp(-connection * (alpha - distance))
-            gradient += numerator / denominator
-    
-    return gradient - point[point_number][index]
-
-    
+## After the loop it add the gradient as minus the point number's index value    
 def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
     Y = np.array(Y)
     mask_a = (Y[:, 1] == point_number)
@@ -107,23 +70,6 @@ def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
 ## The Loss_function take as input all the points, Y-matrix, the distance metric, alpha and returns the MLL
 ## For all possible edges (every row in Y) it takes the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
 ## Log of sigmoid_value is added to the constant: result, in every loop through the rows of Y
-def Loss_function(point,Y,dis,alpha):
-    result = 0
-
-    for m in range(len(Y)):
-        connection = Y[m][0] 
-        point_a = point[Y[m][1]] 
-        point_b = point[Y[m][2]] 
-        if dis == "cosi":
-            distance = np.dot(point_a,point_b)/(np.linalg.norm(point_a)*np.linalg.norm(point_b))
-        if dis == "norm":
-            distance = np.linalg.norm(point_a - point_b) ** 2 
-        sigmoid_value = 1 / (1 + np.exp(-connection * (alpha - distance))) 
-        result += np.log(sigmoid_value) 
-
-    return result
-
-
 def Loss_function_fast(point,Y,alpha):
     Y = np.array(Y)
     connections = Y[:, 0]
@@ -147,25 +93,6 @@ def Loss_function_fast(point,Y,alpha):
 ## Firstly it calculates the numerator, where point_index_diff is the point number's index minus the other vertex point number's index
 ## The numerator is mulitplied with the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
 ## The fraction for the m row in Y is added to the constant gradient
-def Gradient_function(point_number,index,Y,point,dis,alpha):
-    gradient = 0 
-    for m in range(len(Y)): 
-        if ((Y[m][1] == point_number) or (Y[m][2] == point_number)):
-            connection = Y[m][0]
-            point_a = point[Y[m][1]]
-            point_b = point[Y[m][2]]
-            if dis == "cosi":
-                distance = np.dot(point_a,point_b)/(np.linalg.norm(point_a)*np.linalg.norm(point_b))
-            if dis == "norm":
-                distance = np.linalg.norm(point_a - point_b) ** 2
-            point_index_diff = (point[point_number][index] - point_a[index]) + (point[point_number][index] - point_b[index])
-            numerator = -2 * connection * point_index_diff * np.exp(-connection * (alpha - distance)) 
-            denominator = 1 + np.exp(-connection * (alpha - distance)) 
-            gradient += numerator / denominator 
-
-    return gradient 
-
-
 def Gradient_function_fast(point_number,dim,Y,point,alpha):
     Y = np.array(Y)
     mask_a = (Y[:, 1] == point_number)
