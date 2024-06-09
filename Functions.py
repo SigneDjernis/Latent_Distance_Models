@@ -6,10 +6,14 @@ import math
 
 ############################################################ With Prior ############################################################
 # Loss function with prior
-## The Loss_function_prior take as input all the points, Y-matrix, dimension k, the distance metric, alpha and returns the MLL plus a prior
-## For all possible edges (every row in Y) it takes the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
-## Log of sigmoid_value is added to the constant: result, in every loop through the rows of Y
-## Finally it add the prior, as the sum of alle the points plus a constant that depends on the dimension
+# The Loss_function_prior_fast computes the loss (negative log-likelihood) with a prior.
+# Inputs:
+#   - point: A list of all points.
+#   - Y: A matrix where each row represents a relation between two points.
+#   - k: The dimension of the points.
+#   - alpha: A parameter used in the sigmoid function.
+# Returns:
+#   - The computed loss value including a prior term.
 def Loss_function_prior_fast(point,Y,k,alpha):
     Y = np.array(Y)
     connections = Y[:, 0]
@@ -28,14 +32,16 @@ def Loss_function_prior_fast(point,Y,k,alpha):
     return np.sum(np.log(sigmoid_value)) + prior
 
 
-
 # Gradient function with prior
-## The Gradient_function_prior take as input the point number, the index, Y-matrix, all the points, the distance metric, alpha and reuturns the gradient for the point number's index
-## It loops over all possible edges (every row in Y), and checks if point_number is in that row, if so it calculates the gradient
-## Firstly it calculates the numerator, where point_index_diff is the point number's index minus the other vertex point number's index
-## The numerator is mulitplied with the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
-## The fraction for the m row in Y is added to the constant gradient
-## After the loop it add the gradient as minus the point number's index value    
+# The Gradient_function_prior_fast computes the gradient with a prior for a specific point in the data.
+# Inputs:
+#   - point_number: The point for which the gradient is being computed.
+#   - dim: The dimension of the points.
+#   - Y: A matrix where each row represents a relation between two points.
+#   - point: A list of all points.
+#   - alpha: A parameter used in the sigmoid function.
+# Returns:
+#   - The gradient with a prior vector for the given point_number.
 def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
     Y = np.array(Y)
     mask_a = (Y[:, 1] == point_number)
@@ -67,9 +73,13 @@ def Gradient_function_prior_fast(point_number,dim,Y,point,alpha):
 
 ########################################################### Without Prior ###########################################################
 # Loss function without prior
-## The Loss_function take as input all the points, Y-matrix, the distance metric, alpha and returns the MLL
-## For all possible edges (every row in Y) it takes the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
-## Log of sigmoid_value is added to the constant: result, in every loop through the rows of Y
+# The Loss_function_fast computes the loss (negative log-likelihood) without a prior.
+# Inputs:
+#   - point: A list of all points.
+#   - Y: A matrix where each row represents a relation between two points.
+#   - alpha: A parameter used in the sigmoid function.
+# Returns:
+#   - The computed loss value.
 def Loss_function_fast(point,Y,alpha):
     Y = np.array(Y)
     connections = Y[:, 0]
@@ -87,12 +97,17 @@ def Loss_function_fast(point,Y,alpha):
     return np.sum(np.log(sigmoid_value))
 
 
-# Gradient function
-## The Gradient_function take as input the point number, the index, Y-matrix, all the points, the distance metric, alpha and reuturns the gradient for the point number's index
-## It loops over all possible edges (every row in Y), and checks if point_number is in that row, if so it calculates the gradient
-## Firstly it calculates the numerator, where point_index_diff is the point number's index minus the other vertex point number's index
-## The numerator is mulitplied with the sigmod function to -y_{a,b} multipled with alhpha minus the distance between point_a and point_b
-## The fraction for the m row in Y is added to the constant gradient
+
+# Gradient function without prior
+# The Gradient_function_prior_fast computes the gradient without a prior for a specific point in the data.
+# Inputs:
+#   - point_number: The point for which the gradient is being computed.
+#   - dim: The dimension of the points.
+#   - Y: A matrix where each row represents a relation between two points.
+#   - point: A list of all points.
+#   - alpha: A parameter used in the sigmoid function.
+# Returns:
+#   - The gradient without a prior vector for the given point_number.
 def Gradient_function_fast(point_number,dim,Y,point,alpha):
     Y = np.array(Y)
     mask_a = (Y[:, 1] == point_number)
@@ -123,6 +138,14 @@ def Gradient_function_fast(point_number,dim,Y,point,alpha):
 
 
 ############################################################# Baseline #############################################################
+# Baseline
+# Computes the probability of connections between two vertices.
+# Inputs:
+#   - Y: The original matrix where each row represents a relation between two points.
+#   - test_number: The index of the relation being tested.
+#   - Y_updated: The updated training matrix of relations.
+# Returns:
+#   - An array containing probability for each relation between the vertices connected in Y[test_number].
 def Baseline_function(Y,test_number,Y_updated):
     vertex_a = Y[test_number, 1]
     vertex_b = Y[test_number, 2]
@@ -145,7 +168,6 @@ def Baseline_function(Y,test_number,Y_updated):
         prop[k] = 2*len(np.intersect1d(degree_a, degree_b))/(len(degree_a) + len(degree_b))
 
     return prop
-
 
 
 
